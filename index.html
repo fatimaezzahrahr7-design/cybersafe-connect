@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CyberSafe Connect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== NAVIGATION ===== -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="#" class="logo">CyberSafe<span>Connect</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#safety-check">Safety Check</a></li>
+        <li><a href="#spot-scam">Spot the Scam</a></li>
+        <li><a href="#learning-cards">Learn</a></li>
+        <li><a href="#sdg-connect">SDG Connect</a></li>
+        <li><a href="#about">About</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <header class="hero">
+    <div class="hero-content">
+      <p class="hero-eyebrow">Digital Safety &middot; Youth Partnership &middot; SDG 17</p>
+      <h1>CyberSafe Connect</h1>
+      <p class="hero-tagline">Safer digital communities through youth collaboration.</p>
+      <p class="hero-description">
+        CyberSafe Connect combines practical cybersecurity awareness with a
+        collaborative project-building space, helping young people protect
+        themselves online while forming the kinds of partnerships that make
+        real community impact possible.
+      </p>
+      <div class="hero-actions">
+        <a href="#safety-check" class="btn btn-primary">Check My Digital Safety</a>
+        <a href="#sdg-connect" class="btn btn-secondary">Build a Project</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== DIGITAL SAFETY CHECK ===== -->
+  <section id="safety-check" class="section">
+    <div class="section-header">
+      <p class="section-eyebrow">Assessment</p>
+      <h2>Digital Safety Check</h2>
+      <p class="section-subtitle">Answer 7 quick questions to see where your digital habits stand.</p>
+    </div>
+
+    <div class="quiz-card" id="quizCard">
+      <div class="quiz-progress">
+        <div class="quiz-progress-bar" id="quizProgressBar"></div>
+      </div>
+      <p class="quiz-counter" id="quizCounter">Question 1 of 7</p>
+
+      <div id="quizQuestion" class="quiz-question"></div>
+      <div id="quizOptions" class="quiz-options"></div>
+
+      <div class="quiz-nav">
+        <button id="quizBack" class="btn btn-ghost" disabled>Back</button>
+      </div>
+    </div>
+
+    <div class="results-card" id="resultsCard" hidden>
+      <div class="results-score">
+        <div class="score-circle" id="scoreCircle">
+          <span id="scoreNumber">0</span>
+        </div>
+        <div>
+          <p class="results-level" id="resultsLevel">Safety Level</p>
+          <p class="results-caption">Based on your 7 answers</p>
+        </div>
+      </div>
+
+      <div class="results-breakdown" id="resultsBreakdown"></div>
+
+      <div class="results-recommendations">
+        <h3>Your recommendations</h3>
+        <ul id="recommendationsList"></ul>
+      </div>
+
+      <button id="retakeQuiz" class="btn btn-secondary">Retake the check</button>
+    </div>
+  </section>
+
+  <!-- ===== SPOT THE SCAM ===== -->
+  <section id="spot-scam" class="section section-alt">
+    <div class="section-header">
+      <p class="section-eyebrow">Challenge</p>
+      <h2>Can You Spot the Scam?</h2>
+      <p class="section-subtitle">Review each fictional message and decide: suspicious, or probably safe?</p>
+    </div>
+
+    <div class="scam-card" id="scamCard">
+      <p class="scam-counter" id="scamCounter">Message 1 of 5</p>
+      <div class="scam-message" id="scamMessage"></div>
+      <div class="scam-actions">
+        <button class="btn btn-outline" data-choice="safe">Probably Safe</button>
+        <button class="btn btn-outline" data-choice="suspicious">Suspicious</button>
+      </div>
+      <div class="scam-feedback" id="scamFeedback" hidden></div>
+      <button class="btn btn-primary" id="scamNext" hidden>Next Message</button>
+    </div>
+
+    <div class="scam-summary" id="scamSummary" hidden>
+      <h3>You spotted <span id="scamScore">0</span> out of 5 correctly</h3>
+      <button class="btn btn-secondary" id="scamRestart">Try Again</button>
+    </div>
+  </section>
+
+  <!-- ===== LEARNING CARDS ===== -->
+  <section id="learning-cards" class="section">
+    <div class="section-header">
+      <p class="section-eyebrow">Knowledge</p>
+      <h2>Cybersecurity Learning Cards</h2>
+      <p class="section-subtitle">Flip each card for a practical takeaway you can use today.</p>
+    </div>
+    <div class="cards-grid" id="learningCardsGrid"></div>
+  </section>
+
+  <!-- ===== SDG CONNECT / PROJECT BUILDER ===== -->
+  <section id="sdg-connect" class="section section-alt">
+    <div class="section-header">
+      <p class="section-eyebrow">Project Builder</p>
+      <h2>SDG Connect</h2>
+      <p class="section-subtitle">Pick a problem, a contribution, and a partner — generate a project concept.</p>
+    </div>
+
+    <div class="builder-card">
+      <div class="builder-step">
+        <p class="builder-label">1. Choose a problem</p>
+        <div class="chip-group" id="problemChips"></div>
+      </div>
+      <div class="builder-step">
+        <p class="builder-label">2. Choose your contribution</p>
+        <div class="chip-group" id="contributionChips"></div>
+      </div>
+      <div class="builder-step">
+        <p class="builder-label">3. Choose a potential partner</p>
+        <div class="chip-group" id="partnerChips"></div>
+      </div>
+
+      <button class="btn btn-primary" id="generateProject" disabled>Generate Project Concept</button>
+
+      <div class="project-output" id="projectOutput" hidden>
+        <h3 id="projectName"></h3>
+        <div class="project-field">
+          <span class="project-field-label">Problem</span>
+          <p id="projectProblem"></p>
+        </div>
+        <div class="project-field">
+          <span class="project-field-label">Proposed Solution</span>
+          <p id="projectSolution"></p>
+        </div>
+        <div class="project-field">
+          <span class="project-field-label">Youth Contribution</span>
+          <p id="projectContribution"></p>
+        </div>
+        <div class="project-field">
+          <span class="project-field-label">Potential Partnership</span>
+          <p id="projectPartner"></p>
+        </div>
+        <div class="project-field">
+          <span class="project-field-label">SDG 17 Connection</span>
+          <p id="projectSDG"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== WHY SDG 17 ===== -->
+  <section class="section why-sdg">
+    <div class="section-header">
+      <p class="section-eyebrow">Why It Matters</p>
+      <h2>Why SDG 17?</h2>
+    </div>
+    <p class="why-sdg-text">
+      Meaningful social impact rarely happens in isolation. It takes
+      partnerships — between young people, schools, NGOs, universities,
+      governments, businesses, and communities — to turn an idea into
+      something that actually changes how people live and stay safe online.
+      CyberSafe Connect is built on that principle: cybersecurity awareness
+      becomes far more powerful when it's shared, taught, and built together.
+    </p>
+  </section>
+
+  <!-- ===== ABOUT ===== -->
+  <section id="about" class="section section-alt">
+    <div class="section-header">
+      <p class="section-eyebrow">About</p>
+      <h2>About CyberSafe Connect</h2>
+    </div>
+    <p class="about-text">
+      CyberSafe Connect is a youth-focused concept that brings together
+      digital safety, technology, collaboration, and social impact in one
+      platform. It's designed to help young people understand and practice
+      good cybersecurity habits, while also giving them a space to imagine
+      and structure real community partnerships — the kind of thinking at
+      the heart of the United Nations' Sustainable Development Goal 17.
+    </p>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <p>CyberSafe Connect &middot; A youth cybersecurity &amp; collaboration concept</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
