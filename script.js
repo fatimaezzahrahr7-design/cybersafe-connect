@@ -2,42 +2,18 @@
 // CYBERSAFE CONNECT — MAIN SCRIPT
 // =========================================================
 
-// ---------- DARK / LIGHT MODE TOGGLE ----------
-const themeToggle = document.getElementById('themeToggle');
-const themeIcon = document.getElementById('themeIcon');
-
-function applyTheme(isLight) {
-  document.body.classList.toggle('light-mode', isLight);
-  themeIcon.textContent = isLight ? '🌙' : '☀️';
-  localStorage.setItem('csc-theme', isLight ? 'light' : 'dark');
-}
-
-const savedTheme = localStorage.getItem('csc-theme');
-applyTheme(savedTheme === 'light');
-
-themeToggle.addEventListener('click', () => {
-  applyTheme(!document.body.classList.contains('light-mode'));
-});
-
-// ---------- MOBILE NAV TOGGLE ----------
+// ---------- MOBILE NAV ----------
 const navToggle = document.getElementById('navToggle');
 const navLinks = document.getElementById('navLinks');
-
 navToggle.addEventListener('click', () => {
-  const isOpen = navLinks.classList.toggle('open');
-  navToggle.setAttribute('aria-expanded', isOpen);
+  const open = navLinks.classList.toggle('open');
+  navToggle.setAttribute('aria-expanded', open);
 });
-
 navLinks.querySelectorAll('a').forEach(link => {
-  link.addEventListener('click', () => {
-    navLinks.classList.remove('open');
-    navToggle.setAttribute('aria-expanded', 'false');
-  });
+  link.addEventListener('click', () => navLinks.classList.remove('open'));
 });
 
-// ---------- SCROLL REVEAL ANIMATIONS ----------
-const revealElements = document.querySelectorAll('.reveal');
-
+// ---------- SCROLL REVEAL ----------
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
@@ -45,77 +21,111 @@ const revealObserver = new IntersectionObserver((entries) => {
       revealObserver.unobserve(entry.target);
     }
   });
-}, { threshold: 0.15 });
-
-revealElements.forEach(el => revealObserver.observe(el));
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
 // =========================================================
-// SECTION 1: DIGITAL SAFETY CHECK (QUIZ)
+// 01 — DIGITAL SAFETY SCORE
 // =========================================================
 
-const quizQuestions = [
+const categories = [
   {
-    category: "Passwords",
+    key: "Passwords",
     question: "How do you usually create passwords for your online accounts?",
     options: [
       { text: "I reuse the same password everywhere", score: 1 },
       { text: "I use a few different passwords for different sites", score: 2 },
       { text: "I use a unique, strong password for each account", score: 3 }
-    ]
+    ],
+    advice: {
+      1: "Start with your email and banking accounts — give each a unique password using a password manager.",
+      2: "You're partway there. Extend unique passwords to every account, not just the important ones.",
+      3: "Strong habit. Keep using a password manager so this stays easy as you add more accounts."
+    }
   },
   {
-    category: "Two-Factor Authentication",
+    key: "Two-Factor Authentication",
     question: "Do you use two-factor authentication (2FA) on your important accounts?",
     options: [
       { text: "I've never heard of it or never set it up", score: 1 },
       { text: "I use it on some accounts", score: 2 },
       { text: "I use it on all my important accounts", score: 3 }
-    ]
+    ],
+    advice: {
+      1: "Turn on 2FA on your email first — it's the account attackers use to reset everything else.",
+      2: "Good start — extend 2FA to your banking and social accounts too.",
+      3: "This alone blocks most account takeovers. Keep it up."
+    }
   },
   {
-    category: "Phishing Awareness",
+    key: "Phishing Awareness",
     question: "You get an urgent email saying your account will be suspended unless you click a link immediately. What do you do?",
     options: [
       { text: "Click the link right away to fix it", score: 1 },
       { text: "Feel unsure but click anyway just in case", score: 2 },
       { text: "Go directly to the official website instead of clicking", score: 3 }
-    ]
+    ],
+    advice: {
+      1: "Urgency is the biggest phishing signal. Practice pausing before clicking anything urgent.",
+      2: "Trust that instinct — if something feels off, it usually is. Verify through the official site instead.",
+      3: "Exactly right. Going direct instead of clicking through is the safest habit there is."
+    }
   },
   {
-    category: "Privacy Settings",
+    key: "Privacy Settings",
     question: "How often do you check the privacy settings on your social media accounts?",
     options: [
       { text: "Never — I use the default settings", score: 1 },
       { text: "Occasionally, when I remember", score: 2 },
       { text: "Regularly, I review them often", score: 3 }
-    ]
+    ],
+    advice: {
+      1: "Defaults are often more open than expected — spend 10 minutes reviewing who can see your posts and info.",
+      2: "Set a recurring reminder every few months so this doesn't slip.",
+      3: "Great habit — this alone prevents a lot of oversharing risk."
+    }
   },
   {
-    category: "Public Wi-Fi",
+    key: "Public Wi-Fi",
     question: "When you're on public Wi-Fi, what do you typically do?",
     options: [
       { text: "Use it normally for everything, including banking", score: 1 },
       { text: "Use it for casual browsing only", score: 2 },
       { text: "Avoid sensitive activity or use a VPN", score: 3 }
-    ]
+    ],
+    advice: {
+      1: "Switch to mobile data or a VPN before logging into anything sensitive on public networks.",
+      2: "Good instinct — consider a VPN for the rare times you do need something sensitive.",
+      3: "This is the safest approach — you're already protecting the moments that matter most."
+    }
   },
   {
-    category: "Suspicious Links",
+    key: "Suspicious Links",
     question: "A friend's account sends you a strange link with no context. What's your reaction?",
     options: [
       { text: "Click it since it's from a friend", score: 1 },
       { text: "Hover over it to check, then decide", score: 2 },
       { text: "Message them separately to confirm before clicking", score: 3 }
-    ]
+    ],
+    advice: {
+      1: "Compromised accounts send links like this constantly — verify through another channel first.",
+      2: "Checking the link helps, but confirming with the actual person is more reliable.",
+      3: "This is the gold standard response — you're protecting both yourself and your friend."
+    }
   },
   {
-    category: "App Permissions",
+    key: "App Permissions",
     question: "When installing a new app, how do you handle permission requests (camera, contacts, location)?",
     options: [
       { text: "Accept all permissions without checking", score: 1 },
       { text: "Skim through them quickly", score: 2 },
       { text: "Review each one and only allow what's necessary", score: 3 }
-    ]
+    ],
+    advice: {
+      1: "Go into your settings now and review what apps you've already granted broad access to.",
+      2: "Slow down slightly — a quick skim can miss an unnecessary camera or location request.",
+      3: "This minimizes your exposure if any single app is ever compromised."
+    }
   }
 ];
 
@@ -131,10 +141,10 @@ const quizCard = document.getElementById('quizCard');
 const resultsCard = document.getElementById('resultsCard');
 
 function renderQuestion() {
-  const q = quizQuestions[currentQuestion];
+  const q = categories[currentQuestion];
   quizQuestionEl.textContent = q.question;
-  quizCounterEl.textContent = `Question ${currentQuestion + 1} of ${quizQuestions.length}`;
-  quizProgressBar.style.width = `${((currentQuestion + 1) / quizQuestions.length) * 100}%`;
+  quizCounterEl.textContent = `Question ${currentQuestion + 1} of ${categories.length}`;
+  quizProgressBar.style.width = `${((currentQuestion + 1) / categories.length) * 100}%`;
   quizBackBtn.disabled = currentQuestion === 0;
 
   quizOptionsEl.innerHTML = '';
@@ -142,9 +152,7 @@ function renderQuestion() {
     const btn = document.createElement('button');
     btn.className = 'quiz-option';
     btn.textContent = opt.text;
-    if (quizAnswers[currentQuestion] === index) {
-      btn.classList.add('selected');
-    }
+    if (quizAnswers[currentQuestion] === index) btn.classList.add('selected');
     btn.addEventListener('click', () => selectAnswer(index));
     quizOptionsEl.appendChild(btn);
   });
@@ -152,8 +160,7 @@ function renderQuestion() {
 
 function selectAnswer(index) {
   quizAnswers[currentQuestion] = index;
-
-  if (currentQuestion < quizQuestions.length - 1) {
+  if (currentQuestion < categories.length - 1) {
     currentQuestion++;
     renderQuestion();
   } else {
@@ -162,23 +169,15 @@ function selectAnswer(index) {
 }
 
 quizBackBtn.addEventListener('click', () => {
-  if (currentQuestion > 0) {
-    currentQuestion--;
-    renderQuestion();
-  }
+  if (currentQuestion > 0) { currentQuestion--; renderQuestion(); }
 });
 
 function showResults() {
   quizCard.hidden = true;
   resultsCard.hidden = false;
 
-  const totalScore = quizAnswers.reduce((sum, answerIndex, i) => {
-    return sum + quizQuestions[i].options[answerIndex].score;
-  }, 0);
-
-  const maxScore = quizQuestions.length * 3;
-  const percentage = Math.round((totalScore / maxScore) * 100);
-
+  const totalScore = quizAnswers.reduce((sum, ai, i) => sum + categories[i].options[ai].score, 0);
+  const percentage = Math.round((totalScore / (categories.length * 3)) * 100);
   document.getElementById('scoreNumber').textContent = percentage;
 
   let level;
@@ -186,316 +185,475 @@ function showResults() {
   else if (percentage >= 60) level = "Good";
   else if (percentage >= 40) level = "Needs Improvement";
   else level = "At Risk";
-
   document.getElementById('resultsLevel').textContent = level;
 
-  const breakdownEl = document.getElementById('resultsBreakdown');
-  breakdownEl.innerHTML = '';
-  quizQuestions.forEach((q, i) => {
-    const score = q.options[quizAnswers[i]].score;
+  const grid = document.getElementById('categoryGrid');
+  grid.innerHTML = '';
+  categories.forEach((cat, i) => {
+    const score = cat.options[quizAnswers[i]].score;
     const pct = (score / 3) * 100;
-    const row = document.createElement('div');
-    row.className = 'breakdown-row';
-    row.innerHTML = `
-      <span>${q.category}</span>
-      <div class="breakdown-bar-track"><div class="breakdown-bar-fill" style="width:${pct}%"></div></div>
-      <span>${score}/3</span>
+    const card = document.createElement('div');
+    card.className = 'category-card ' + (score === 1 ? 'weak' : score === 3 ? 'strong' : '');
+    card.innerHTML = `
+      <p class="category-name">${cat.key}</p>
+      <div class="category-bar-track"><div class="category-bar-fill" style="width:${pct}%"></div></div>
+      <p class="category-advice">${cat.advice[score]}</p>
     `;
-    breakdownEl.appendChild(row);
+    grid.appendChild(card);
   });
-
-  const recommendationsMap = {
-    "Passwords": "Use a unique password for each account — a password manager makes this easy.",
-    "Two-Factor Authentication": "Turn on 2FA for your email, banking, and social accounts — it blocks most account takeovers.",
-    "Phishing Awareness": "Never click links in urgent-sounding messages. Go to the site directly instead.",
-    "Privacy Settings": "Review your social media privacy settings at least every few months.",
-    "Public Wi-Fi": "Avoid logging into sensitive accounts on public Wi-Fi, or use a VPN.",
-    "Suspicious Links": "Confirm with the sender through another channel before clicking unexpected links.",
-    "App Permissions": "Only grant app permissions that are actually necessary for it to function."
-  };
-
-  const recList = document.getElementById('recommendationsList');
-  recList.innerHTML = '';
-  const weakAreas = quizQuestions.filter((q, i) => q.options[quizAnswers[i]].score <= 2);
-
-  if (weakAreas.length === 0) {
-    const li = document.createElement('li');
-    li.textContent = "You're following strong digital safety habits across the board. Keep it up!";
-    recList.appendChild(li);
-  } else {
-    weakAreas.forEach(q => {
-      const li = document.createElement('li');
-      li.textContent = recommendationsMap[q.category];
-      recList.appendChild(li);
-    });
-  }
 }
 
 document.getElementById('retakeQuiz').addEventListener('click', () => {
-  currentQuestion = 0;
-  quizAnswers = [];
-  resultsCard.hidden = true;
-  quizCard.hidden = false;
+  currentQuestion = 0; quizAnswers = [];
+  resultsCard.hidden = true; quizCard.hidden = false;
   renderQuestion();
 });
 
 renderQuestion();
 
 // =========================================================
-// SECTION 2: CAN YOU SPOT THE SCAM?
+// 02 — WHAT WOULD YOU DO?
 // =========================================================
 
-const scamMessages = [
+const scenarios = [
   {
-    text: "Subject: Urgent Account Verification Needed\n\nDear User,\n\nWe detected unusual activity on your account. Click the link below within 24 hours or your account will be permanently suspended.\n\n[Verify Now]",
-    isSuspicious: true,
-    explanation: "Urgency, vague threats, and a generic greeting ('Dear User') are classic phishing signs. Legitimate companies rarely threaten immediate suspension via email."
+    situation: "Someone calls claiming to be from your bank's security team. They say there's suspicious activity and ask you to read them the verification code just texted to your phone.",
+    options: [
+      { text: "Read them the code so they can secure your account", best: false, feedback: "Real banks never ask you to read back a verification code — that code is proof of identity meant only for you. Sharing it hands over control of your account." },
+      { text: "Stay on the call but ask them to email you proof first", best: false, feedback: "Staying engaged with an unverified caller still risks being pressured into sharing something. Verify independently instead." },
+      { text: "Hang up and call your bank directly using the number on your card or app", best: true, feedback: "Verifying through a channel you already know is legitimate — never the one that contacted you — is the safest response to any urgent account request." }
+    ]
   },
   {
-    text: "Hi! Just following up on the notes from our study group meeting yesterday. I've attached the summary doc we agreed on — let me know if you want any changes before Friday.",
-    isSuspicious: false,
-    explanation: "This message has specific, verifiable context (a meeting, an agreed-upon document, a real deadline) — no urgency, no request for credentials or money."
+    situation: "A friend's account sends you a link with no context — just \"check this out\".",
+    options: [
+      { text: "Click it right away since it's from a friend you trust", best: false, feedback: "Friends' accounts get hijacked constantly — a link with zero context should be treated as suspicious until confirmed." },
+      { text: "Message your friend on a different app or in person to ask if they sent it", best: true, feedback: "Confirming through a separate channel is the safest move — if their account is compromised, you'll find out before clicking anything." },
+      { text: "Ignore it completely and never mention it", best: false, feedback: "Ignoring it doesn't help your friend — if their account is hacked, telling them helps them regain control faster." }
+    ]
   },
   {
-    text: "CONGRATULATIONS! You've been selected to receive a $500 gift card. Claim your prize now by entering your card details at the link below. Offer expires in 1 hour!",
-    isSuspicious: true,
-    explanation: "Unsolicited prizes combined with a countdown and a request for card details are a textbook scam pattern — legitimate giveaways don't ask for payment card info to 'claim' anything."
+    situation: "You're locked out of your social media account, and weird posts you didn't make start appearing.",
+    options: [
+      { text: "Wait a day to see if it fixes itself", best: false, feedback: "Every hour a compromised account stays active, it can scam your contacts or post more damaging content — speed matters." },
+      { text: "Use the platform's official 'account hacked' recovery flow immediately and warn close contacts", best: true, feedback: "Acting fast through the real recovery process, plus warning people who might get targeted, limits the damage." },
+      { text: "Post publicly asking your followers what's going on", best: false, feedback: "Public posts don't recover your account and can tip off the attacker to change your recovery info first." }
+    ]
   },
   {
-    text: "Reminder from your school portal: Your assignment 'Intro to Chemistry — Lab Report 3' is due tomorrow at 11:59 PM. Log in to the portal directly to submit.",
-    isSuspicious: false,
-    explanation: "This message references a specific, plausible academic task and tells you to log in directly through the portal rather than clicking an embedded link — a safer pattern."
+    situation: "You discover someone has created a fake account pretending to be you.",
+    options: [
+      { text: "Message the fake account asking them to stop", best: false, feedback: "Engaging directly rarely works and can escalate things — impersonators are reported and removed, not negotiated with." },
+      { text: "Report the account to the platform with proof of your identity, and let close contacts know", best: true, feedback: "Reporting through official channels gets it removed, and a heads-up prevents people who know you from being fooled." },
+      { text: "Do nothing since it will probably go away on its own", best: false, feedback: "Impersonation accounts are often used to scam people who trust you — waiting gives them more time." }
+    ]
   },
   {
-    text: "Hey, it's your cousin, I lost my phone and I'm messaging from a friend's number. I need you to send money urgently through this app, I'll explain later, please hurry!",
-    isSuspicious: true,
-    explanation: "Impersonation of a relative, urgency, an unfamiliar contact method, and a request for money are strong scam indicators. Always verify through a known, separate channel first."
+    situation: "You accidentally share something meant to be private in a public post.",
+    options: [
+      { text: "Delete it and hope no one saw it", best: false, feedback: "Deleting helps, but screenshots can spread before you notice — check who may have already seen it." },
+      { text: "Delete it immediately, check who interacted with it, and adjust the privacy setting that caused it", best: true, feedback: "Removing it fast, checking the damage, and fixing the setting prevents the same mistake from happening again." },
+      { text: "Leave it up since it's already out there", best: false, feedback: "Leaving it up only increases how many people see it — removing it fast always limits the spread." }
+    ]
   },
   {
-    text: "Your package could not be delivered due to an incomplete address. Please confirm your details and pay a small redelivery fee of $1.99 within 12 hours to avoid return to sender.",
-    isSuspicious: true,
-    explanation: "Small 'confirmation fees' are a common trick to harvest card details — legitimate carriers don't charge redelivery fees this way over text or email links."
+    situation: "You receive a threatening or manipulative message demanding you send money or images.",
+    options: [
+      { text: "Pay or comply immediately to make it stop", best: false, feedback: "Complying rarely ends it — it often signals you're willing to pay, which can lead to repeated demands." },
+      { text: "Don't respond, save evidence, and tell a trusted adult or report it", best: true, feedback: "Saving evidence and involving someone who can help is the safest path — you are not obligated to respond." },
+      { text: "Respond angrily to make them leave you alone", best: false, feedback: "Engaging at all, even to push back, confirms the account is active and can escalate things." }
+    ]
   },
   {
-    text: "Hi, this is the library — just a reminder that 'Introduction to Statistics' is due back on Friday. You can renew it online through your account if you need more time.",
-    isSuspicious: false,
-    explanation: "A specific, low-stakes reminder with no request for personal information, payment, or urgent action — consistent with a routine institutional notice."
-  },
-  {
-    text: "We noticed a new sign-in to your account from a device we don't recognize. If this was you, no action is needed. If not, you can review your account activity by logging in directly at the official site.",
-    isSuspicious: false,
-    explanation: "No urgent threat, no embedded link demanding immediate action, and it directs you to log in directly rather than clicking through — the safer pattern real security alerts use."
+    situation: "Someone you don't know well sends you a file and says \"you have to see this.\"",
+    options: [
+      { text: "Download and open it to see what it is", best: false, feedback: "Unknown files are one of the most common ways malware spreads — opening one can silently compromise your device." },
+      { text: "Ask the sender what it is and why, through a separate channel if anything feels off", best: true, feedback: "Confirming intent before opening anything unexpected is the safest way to avoid malware." },
+      { text: "Forward it to a friend to open first and see if it's safe", best: false, feedback: "This just moves the risk to someone else — an unknown file isn't safer for another person to open." }
+    ]
   }
 ];
 
-let scamIndex = 0;
-let scamScore = 0;
-let scamAnswered = false;
+let scenarioIndex = 0;
+let scenarioBestCount = 0;
+let scenarioAnswered = false;
 
-const scamMessageEl = document.getElementById('scamMessage');
-const scamCounterEl = document.getElementById('scamCounter');
-const scamFeedbackEl = document.getElementById('scamFeedback');
-const scamNextBtn = document.getElementById('scamNext');
-const scamActionButtons = document.querySelectorAll('#scamCard .scam-actions .btn');
-const scamCard = document.getElementById('scamCard');
-const scamSummary = document.getElementById('scamSummary');
+const scenarioSituationEl = document.getElementById('scenarioSituation');
+const scenarioOptionsEl = document.getElementById('scenarioOptions');
+const scenarioCounterEl = document.getElementById('scenarioCounter');
+const scenarioFeedbackEl = document.getElementById('scenarioFeedback');
+const scenarioNextBtn = document.getElementById('scenarioNext');
+const scenarioCard = document.getElementById('scenarioCard');
+const scenarioSummary = document.getElementById('scenarioSummary');
 
-function renderScam() {
-  const msg = scamMessages[scamIndex];
-  scamMessageEl.textContent = msg.text;
-  scamCounterEl.textContent = `Message ${scamIndex + 1} of ${scamMessages.length}`;
-  scamFeedbackEl.hidden = true;
-  scamNextBtn.hidden = true;
-  scamAnswered = false;
-  scamActionButtons.forEach(btn => btn.disabled = false);
+function renderScenario() {
+  const s = scenarios[scenarioIndex];
+  scenarioSituationEl.textContent = s.situation;
+  scenarioCounterEl.textContent = `Scenario ${scenarioIndex + 1} of ${scenarios.length}`;
+  scenarioFeedbackEl.hidden = true;
+  scenarioNextBtn.hidden = true;
+  scenarioAnswered = false;
+
+  scenarioOptionsEl.innerHTML = '';
+  s.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'scenario-option';
+    btn.textContent = opt.text;
+    btn.addEventListener('click', () => {
+      if (scenarioAnswered) return;
+      scenarioAnswered = true;
+      if (opt.best) scenarioBestCount++;
+
+      scenarioOptionsEl.querySelectorAll('.scenario-option').forEach(b => b.disabled = true);
+      btn.classList.add(opt.best ? 'correct-pick' : 'wrong-pick');
+
+      scenarioFeedbackEl.hidden = false;
+      scenarioFeedbackEl.className = 'scenario-feedback ' + (opt.best ? 'best' : 'risky');
+      scenarioFeedbackEl.textContent = opt.feedback;
+      scenarioNextBtn.hidden = false;
+    });
+    scenarioOptionsEl.appendChild(btn);
+  });
 }
 
-scamActionButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (scamAnswered) return;
-    scamAnswered = true;
-
-    const choice = btn.getAttribute('data-choice');
-    const msg = scamMessages[scamIndex];
-    const userSaidSuspicious = choice === 'suspicious';
-    const correct = userSaidSuspicious === msg.isSuspicious;
-
-    if (correct) scamScore++;
-
-    scamFeedbackEl.hidden = false;
-    scamFeedbackEl.className = 'scam-feedback ' + (correct ? 'correct' : 'incorrect');
-    scamFeedbackEl.textContent = (correct ? "Correct! " : "Not quite. ") + msg.explanation;
-
-    scamActionButtons.forEach(b => b.disabled = true);
-    scamNextBtn.hidden = false;
-  });
-});
-
-scamNextBtn.addEventListener('click', () => {
-  scamIndex++;
-  if (scamIndex < scamMessages.length) {
-    renderScam();
+scenarioNextBtn.addEventListener('click', () => {
+  scenarioIndex++;
+  if (scenarioIndex < scenarios.length) {
+    renderScenario();
   } else {
-    scamCard.hidden = true;
-    scamSummary.hidden = false;
-    document.getElementById('scamScore').textContent = scamScore;
+    scenarioCard.hidden = true;
+    scenarioSummary.hidden = false;
+    document.getElementById('scenarioSummaryText').textContent =
+      `You chose the safest response ${scenarioBestCount} out of ${scenarios.length} times`;
   }
 });
 
-document.getElementById('scamRestart').addEventListener('click', () => {
-  scamIndex = 0;
-  scamScore = 0;
-  scamSummary.hidden = true;
-  scamCard.hidden = false;
-  renderScam();
+document.getElementById('scenarioRestart').addEventListener('click', () => {
+  scenarioIndex = 0; scenarioBestCount = 0;
+  scenarioSummary.hidden = true; scenarioCard.hidden = false;
+  renderScenario();
 });
 
-renderScam();
+renderScenario();
 
 // =========================================================
-// SECTION 3: CYBERSECURITY LEARNING CARDS
+// 03 — LEARNING HUB
 // =========================================================
 
-const learningCards = [
+const hubTopics = [
   {
-    title: "Strong Passwords",
-    text: "A strong password is long, unique, and hard to guess.",
-    takeaway: "Use 12+ characters and a password manager to generate and store unique passwords for every account."
+    icon: "🔐", title: "Passwords & MFA",
+    learn: "A strong password is long, unique, and different for every account. Multi-factor authentication (MFA) adds a second proof of identity — like a code sent to your phone — so a stolen password alone isn't enough to get in.",
+    try: { question: "Which of these is the strongest password practice?", options: [
+      { text: "One strong password, reused everywhere", correct: false, feedback: "Reusing even a strong password means one breach exposes every account that shares it." },
+      { text: "A unique password for every account, stored in a password manager", correct: true, feedback: "This is what security professionals recommend — uniqueness limits damage, and a manager makes it practical." },
+      { text: "Changing your password every week", correct: false, feedback: "Frequent forced changes often lead to weaker, predictable passwords — uniqueness and length matter more." }
+    ]},
+    challenge: { question: "You get a new banking app. What's the single most effective addition beyond a strong password?", options: [
+      { text: "A password hint question", correct: false, feedback: "Hint questions are often guessable or findable on social media." },
+      { text: "Two-factor authentication (2FA)", correct: true, feedback: "2FA means even a stolen password isn't enough — the attacker also needs your phone or authenticator." },
+      { text: "A longer but easy-to-remember password", correct: false, feedback: "Length helps, but doesn't stop an attacker who already has the password from a breach or phishing." }
+    ]}
   },
   {
-    title: "Two-Factor Authentication",
-    text: "2FA adds a second layer of proof beyond your password.",
-    takeaway: "Enable 2FA on your email first — it's the account attackers use to reset everything else."
+    icon: "🎣", title: "Phishing & Scams",
+    learn: "Phishing tricks you into giving up information or money by faking urgency, authority, or trust — a fake bank alert, a fake prize, or a message pretending to be someone you know.",
+    try: { question: "What's the biggest red flag in most phishing messages?", options: [
+      { text: "A professional-looking logo", correct: false, feedback: "Attackers can copy logos perfectly — visuals alone don't prove legitimacy." },
+      { text: "Urgent pressure to act immediately", correct: true, feedback: "Urgency is designed to stop you from thinking it through — it's the most consistent phishing signal." },
+      { text: "Being sent by email instead of text", correct: false, feedback: "Phishing happens over every channel — email, text, social media, and calls." }
+    ]},
+    challenge: { question: "A message says your package couldn't be delivered and asks for a small redelivery fee. What should you do?", options: [
+      { text: "Pay the small fee since it's cheap", correct: false, feedback: "Small fees are a common trick to harvest card details." },
+      { text: "Check your delivery status directly through the courier's official app or site", correct: true, feedback: "Checking through a channel you trust avoids the scam entirely." },
+      { text: "Reply asking for more details", correct: false, feedback: "Replying confirms your contact info is active, which can invite more attempts." }
+    ]}
   },
   {
-    title: "Phishing",
-    text: "Phishing tricks you into giving up information through fake urgency or impersonation.",
-    takeaway: "Pause before clicking. Go to sites directly instead of following links in messages."
+    icon: "📱", title: "Social Media Privacy",
+    learn: "Default privacy settings are often more open than people expect. What you post, tag, and allow to be public can be seen by far more people than just your followers.",
+    try: { question: "Which setting change has the biggest privacy impact?", options: [
+      { text: "Changing your profile picture", correct: false, feedback: "This doesn't affect who can see your information." },
+      { text: "Setting your account to private and reviewing who can see your posts", correct: true, feedback: "This directly controls your actual audience, which is the core of privacy." },
+      { text: "Adding a bio description", correct: false, feedback: "This doesn't change visibility of your content." }
+    ]},
+    challenge: { question: "You're tagged in a friend's public post that reveals your location. What's the safest move?", options: [
+      { text: "Leave it, it's not a big deal", correct: false, feedback: "Location details in public posts can be used for stalking or targeted scams." },
+      { text: "Ask your friend to remove the location or make the post private, and check your own tag settings", correct: true, feedback: "Addressing both the post and your own settings limits future exposure too." },
+      { text: "Delete your own account", correct: false, feedback: "An extreme reaction to a fixable setting issue." }
+    ]}
   },
   {
-    title: "Account Security",
-    text: "Your accounts are only as secure as your weakest habit.",
-    takeaway: "Review your account activity and connected devices periodically to spot anything unfamiliar."
+    icon: "🕵️", title: "Digital Footprints",
+    learn: "Everything you post, like, and search builds a permanent picture of you that others — including future employers or schools — can find. Your digital footprint often outlives the moment you created it.",
+    try: { question: "What best describes a 'digital footprint'?", options: [
+      { text: "Just your search history", correct: false, feedback: "Search history is only one part — footprints include posts, comments, tags, and old accounts." },
+      { text: "The trail of data and content you leave across the internet over time", correct: true, feedback: "This is the accurate definition — it accumulates from everything you do online." },
+      { text: "Something only visible to hackers", correct: false, feedback: "Most of it is visible to anyone who looks, not just attackers." }
+    ]},
+    challenge: { question: "A program says it may review your public online presence. What's the most useful step?", options: [
+      { text: "Delete every social account right before applying", correct: false, feedback: "Sudden deletion can look suspicious and erases genuinely good content too." },
+      { text: "Search your own name, review what's public, and clean up anything you wouldn't want a reviewer to see", correct: true, feedback: "Auditing your own footprint gives you control over the impression it creates." },
+      { text: "Assume nobody actually checks", correct: false, feedback: "Many programs do check — assuming otherwise is a risky bet." }
+    ]}
   },
   {
-    title: "Public Wi-Fi",
-    text: "Open networks can expose your data to others on the same network.",
-    takeaway: "Avoid logging into sensitive accounts on public Wi-Fi, or use a trusted VPN."
+    icon: "💻", title: "Device Security",
+    learn: "Your phone and laptop hold more personal information than almost anything else you own. Updates, screen locks, and careful app permissions are your first line of defense if a device is lost or compromised.",
+    try: { question: "Why do security updates matter so much?", options: [
+      { text: "They add new features", correct: false, feedback: "That's not their security purpose, even if updates sometimes include extras." },
+      { text: "They patch security holes that attackers actively exploit", correct: true, feedback: "Delayed updates leave known, exploitable weaknesses open on your device." },
+      { text: "They're optional and mostly unnecessary", correct: false, feedback: "Skipping them leaves your device vulnerable to known attacks." }
+    ]},
+    challenge: { question: "Your phone is lost in a public place. What matters most for limiting the damage?", options: [
+      { text: "Hoping whoever finds it is honest", correct: false, feedback: "Luck isn't a security strategy." },
+      { text: "Having a screen lock, remote-wipe, and encrypted storage set up beforehand", correct: true, feedback: "These need to be set up in advance — they're what actually prevents access to your data." },
+      { text: "Having a colorful phone case", correct: false, feedback: "This doesn't affect data security at all." }
+    ]}
   },
   {
-    title: "Privacy Settings",
-    text: "Default settings are often more open than you'd expect.",
-    takeaway: "Check who can see your posts, location, and contact info at least a few times a year."
+    icon: "🌐", title: "Public Wi-Fi",
+    learn: "Open Wi-Fi networks — cafes, airports, libraries — can expose your traffic to others on the same network. It's not that public Wi-Fi is always dangerous, but sensitive activity deserves extra caution there.",
+    try: { question: "What's the safest way to check your bank balance on public Wi-Fi?", options: [
+      { text: "Log in through the cafe's Wi-Fi normally", correct: false, feedback: "Unencrypted or shared networks can expose login sessions to others nearby." },
+      { text: "Use your phone's mobile data or a trusted VPN instead", correct: true, feedback: "Both avoid exposing sensitive traffic to a shared, unsecured network." },
+      { text: "Use Wi-Fi but in 'incognito' browser mode", correct: false, feedback: "Incognito hides local history — it does nothing to protect traffic on the network itself." }
+    ]},
+    challenge: { question: "A public network has no password but a name nearly identical to a real cafe's network. What should you do?", options: [
+      { text: "Connect to whichever has a stronger signal", correct: false, feedback: "Signal strength says nothing about legitimacy — fake networks are made to look identical." },
+      { text: "Ask staff which network is official before connecting", correct: true, feedback: "Confirming with staff is the only reliable way to avoid a fake, traffic-intercepting network." },
+      { text: "Connect to both to compare", correct: false, feedback: "Connecting to an unverified network still exposes your device, even briefly." }
+    ]}
   },
   {
-    title: "AI-Generated Scams & Deepfakes",
-    text: "AI tools now make fake voices, videos, and messages easier to create convincingly.",
-    takeaway: "If an urgent request from someone you know feels off, verify through a separate, known channel."
+    icon: "🤖", title: "AI Scams & Deepfakes",
+    learn: "AI tools can now generate convincing fake voices, videos, and messages. This doesn't mean distrusting everything — it means urgent, unusual requests from people you know deserve a quick, separate-channel check.",
+    try: { question: "A voice message sounding exactly like family urgently asks for money. What's the smart first step?", options: [
+      { text: "Send the money right away since it sounds exactly like them", correct: false, feedback: "AI voice cloning can convincingly mimic real voices from just seconds of audio." },
+      { text: "Call or message them through a number/app you already know is theirs", correct: true, feedback: "Verifying through a channel you know is genuinely theirs defeats almost every impersonation attempt." },
+      { text: "Ask the message a personal question and trust the answer", correct: false, feedback: "An attacker doing real-time research or using leaked info could still answer correctly — not a reliable test." }
+    ]},
+    challenge: { question: "A viral video shows a public figure saying something out of character. What's the best response?", options: [
+      { text: "Share it immediately since it's already popular", correct: false, feedback: "Popularity doesn't verify authenticity — deepfakes spread fast precisely because they're shocking." },
+      { text: "Check if reputable news sources are reporting the same statement first", correct: true, feedback: "Cross-checking with reliable sources is the most effective way to catch synthetic media." },
+      { text: "Assume it's real because the video quality looks good", correct: false, feedback: "High video quality is no longer a reliable sign of authenticity." }
+    ]}
   },
   {
-    title: "Software Updates",
-    text: "Updates often patch security holes attackers actively exploit.",
-    takeaway: "Turn on automatic updates for your phone, browser, and apps whenever possible."
+    icon: "💳", title: "Online Financial Safety",
+    learn: "Shopping, banking, and payment apps are prime targets for scams. Legitimate services don't ask for full card details or one-time codes over chat, email, or phone.",
+    try: { question: "A text says your card was declined, with a link to 're-enter your details.' What should you do?", options: [
+      { text: "Click the link and re-enter your card info", correct: false, feedback: "This is one of the most common scam formats — real declines are shown in the app, not fixed by text link." },
+      { text: "Open your banking app directly to check your account status", correct: true, feedback: "Going straight to the source avoids exposing your details to a fake page." },
+      { text: "Reply to the text asking if it's legitimate", correct: false, feedback: "Scammers will simply confirm it's real — replying doesn't verify anything." }
+    ]},
+    challenge: { question: "A secondhand seller online asks for a personal money transfer instead of the platform's payment system. What's safest?", options: [
+      { text: "Pay that way since it's more convenient", correct: false, feedback: "Personal transfers usually have no buyer protection if the seller doesn't deliver." },
+      { text: "Insist on the platform's built-in payment system, or walk away", correct: true, feedback: "Official payment systems typically include dispute resolution that personal transfers don't." },
+      { text: "Send half the payment first as a compromise", correct: false, feedback: "Partial payment doesn't protect you — you can still lose that amount." }
+    ]}
   },
   {
-    title: "Social Engineering",
-    text: "Many attacks target trust and urgency, not just technical weaknesses.",
-    takeaway: "Slow down when a message pressures you to act fast — that pressure is often the scam itself."
-  },
-  {
-    title: "Backing Up Your Data",
-    text: "A backup protects you if a device is lost, stolen, or compromised.",
-    takeaway: "Keep an up-to-date backup of important files in at least one place outside your main device."
+    icon: "👥", title: "Cyberbullying & Digital Boundaries",
+    learn: "Cyberbullying includes harassment, exclusion, or humiliation carried out through messages, comments, or shared content. Setting digital boundaries — and knowing how to respond — protects you and people around you.",
+    try: { question: "A classmate keeps sending mean comments online. What's the most effective first step?", options: [
+      { text: "Respond with something equally harsh", correct: false, feedback: "Escalating rarely stops the behavior and can make things worse for both people." },
+      { text: "Block them, save evidence, and tell a trusted adult or report it", correct: true, feedback: "This removes the contact while creating a record and involving someone who can help." },
+      { text: "Ignore it and hope it stops on its own", correct: false, feedback: "This can work for one-off comments, but sustained harassment usually needs reporting to actually stop." }
+    ]},
+    challenge: { question: "A group chat is excluding and mocking one classmate. What's the most constructive thing you can do?", options: [
+      { text: "Stay in the chat but say nothing", correct: false, feedback: "Silent presence doesn't stop the harm and can feel like tacit agreement." },
+      { text: "Leave the chat and, if safe, reach out to the classmate or tell a trusted adult", correct: true, feedback: "Removing yourself and supporting the person affected actually interrupts the pattern." },
+      { text: "Screenshot it to laugh about later", correct: false, feedback: "This adds to the harm and spreads the content further." }
+    ]}
   }
 ];
 
-const learningCardsGrid = document.getElementById('learningCardsGrid');
+const hubGrid = document.getElementById('hubGrid');
+const hubDetail = document.getElementById('hubDetail');
+const hubDetailTitle = document.getElementById('hubDetailTitle');
+const hubTabContent = document.getElementById('hubTabContent');
+let activeHubTopic = null;
+let activeHubTab = 'learn';
 
-learningCards.forEach(card => {
-  const cardEl = document.createElement('div');
-  cardEl.className = 'learning-card';
-  cardEl.setAttribute('tabindex', '0');
-  cardEl.setAttribute('role', 'button');
-  cardEl.setAttribute('aria-label', `${card.title}. Press to reveal the takeaway.`);
-  cardEl.innerHTML = `
-    <div>
-      <p class="learning-card-title">${card.title}</p>
-      <p class="learning-card-text">${card.text}</p>
-    </div>
-    <p class="learning-card-takeaway">${card.takeaway}</p>
-  `;
-  cardEl.addEventListener('click', () => {
-    cardEl.classList.toggle('flipped');
+hubTopics.forEach((topic, i) => {
+  const tile = document.createElement('div');
+  tile.className = 'hub-tile';
+  tile.innerHTML = `<div class="hub-tile-icon">${topic.icon}</div><p class="hub-tile-title">${topic.title}</p>`;
+  tile.addEventListener('click', () => openHubTopic(i));
+  hubGrid.appendChild(tile);
+});
+
+function openHubTopic(i) {
+  activeHubTopic = i;
+  activeHubTab = 'learn';
+  hubDetail.hidden = false;
+  hubDetailTitle.textContent = hubTopics[i].icon + ' ' + hubTopics[i].title;
+  setHubTab('learn');
+  hubDetail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+document.getElementById('hubClose').addEventListener('click', () => { hubDetail.hidden = true; });
+
+['tabLearn', 'tabTry', 'tabChallenge'].forEach(id => {
+  document.getElementById(id).addEventListener('click', () => {
+    setHubTab(document.getElementById(id).dataset.tab);
   });
-  cardEl.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      cardEl.classList.toggle('flipped');
-    }
+});
+
+function setHubTab(tab) {
+  activeHubTab = tab;
+  document.querySelectorAll('.hub-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  const topic = hubTopics[activeHubTopic];
+
+  if (tab === 'learn') {
+    hubTabContent.innerHTML = `<p>${topic.learn}</p>`;
+    return;
+  }
+
+  const data = tab === 'try' ? topic.try : topic.challenge;
+  hubTabContent.innerHTML = `<p><strong>${data.question}</strong></p><div class="hub-options"></div>`;
+  const container = hubTabContent.querySelector('.hub-options');
+  data.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = tab === 'try' ? 'hub-try-option' : 'hub-challenge-option';
+    btn.textContent = opt.text;
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('button').forEach(b => b.disabled = true);
+      btn.classList.add(opt.correct ? 'correct-pick' : 'wrong-pick');
+      const fb = document.createElement('div');
+      fb.className = 'hub-feedback';
+      fb.textContent = opt.feedback;
+      hubTabContent.appendChild(fb);
+    });
+    container.appendChild(btn);
   });
-  learningCardsGrid.appendChild(cardEl);
+}
+
+// =========================================================
+// 04 — SDG CONNECT PROJECT BUILDER
+// =========================================================
+
+const sdgProblems = [
+  { text: "Cybersecurity awareness", tags: ["SDG 4", "SDG 16", "SDG 17"], solution: "a series of workshops and interactive resources that teach practical digital safety habits" },
+  { text: "Digital literacy", tags: ["SDG 4", "SDG 9", "SDG 17"], solution: "a peer-led program that builds core digital skills through hands-on sessions" },
+  { text: "Online privacy", tags: ["SDG 16", "SDG 10", "SDG 17"], solution: "a campaign and toolkit that helps people understand and control their digital footprint" },
+  { text: "Youth opportunities", tags: ["SDG 8", "SDG 4", "SDG 17"], solution: "a mentorship and resource-sharing initiative connecting young people to opportunities" },
+  { text: "Education", tags: ["SDG 4", "SDG 17"], solution: "a set of accessible learning resources built around a real community need" },
+  { text: "Community safety", tags: ["SDG 11", "SDG 16", "SDG 17"], solution: "a community-driven awareness initiative focused on practical, everyday safety" }
+];
+const sdgContributions = ["Technology", "Research", "Communication", "Design", "Leadership", "Education"];
+const sdgPartners = ["School", "Youth organization", "NGO", "University", "Local community", "Technology company"];
+const sdgReaches = ["10–50 people (a classroom or club)", "50–200 people (a school or local community)", "200–1,000 people (multiple schools or organizations)", "1,000+ people (a regional or online campaign)"];
+
+let sdgSel = { problem: null, contribution: null, partner: null, reach: null };
+
+function renderChipGroup(containerId, items, key, labelFn) {
+  const container = document.getElementById(containerId);
+  items.forEach((item, i) => {
+    const chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.textContent = labelFn ? labelFn(item) : item;
+    chip.addEventListener('click', () => {
+      container.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      sdgSel[key] = i;
+      checkSdgComplete();
+    });
+    container.appendChild(chip);
+  });
+}
+renderChipGroup('sdgProblemChips', sdgProblems, 'problem', p => p.text);
+renderChipGroup('sdgContributionChips', sdgContributions, 'contribution');
+renderChipGroup('sdgPartnerChips', sdgPartners, 'partner');
+renderChipGroup('sdgReachChips', sdgReaches, 'reach');
+
+const sdgGenerateBtn = document.getElementById('sdgGenerate');
+function checkSdgComplete() {
+  sdgGenerateBtn.disabled = !(sdgSel.problem !== null && sdgSel.contribution !== null && sdgSel.partner !== null && sdgSel.reach !== null);
+}
+
+sdgGenerateBtn.addEventListener('click', () => {
+  const problem = sdgProblems[sdgSel.problem];
+  const contribution = sdgContributions[sdgSel.contribution];
+  const partner = sdgPartners[sdgSel.partner];
+  const reach = sdgReaches[sdgSel.reach];
+
+  document.getElementById('sdgName').textContent = `${problem.text} × ${partner} Initiative`;
+  document.getElementById('sdgTags').innerHTML = problem.tags.map(t => `<span>${t}</span>`).join('');
+  document.getElementById('sdgProblemText').textContent = `Many young people and communities face challenges related to ${problem.text.toLowerCase()}, often without accessible resources to address them.`;
+  document.getElementById('sdgSolutionText').textContent = `Develop ${problem.solution}, led by youth and shaped by real community input.`;
+  document.getElementById('sdgContributionText').textContent = `Bringing ${contribution.toLowerCase()} skills to design, build, and drive the initiative forward.`;
+  document.getElementById('sdgPartnerText').textContent = `Partnering with a ${partner.toLowerCase()} to provide reach, resources, and credibility.`;
+  document.getElementById('sdgImpactText').textContent = `If run as planned, this could realistically reach ${reach}, directly building safer digital habits in that group.`;
+  document.getElementById('sdgConnectionText').textContent = `This project reflects SDG 17 by combining youth-led action with an established partner, showing how collaboration across sectors turns awareness into real impact.`;
+
+  document.getElementById('sdgOutput').hidden = false;
 });
 
 // =========================================================
-// SECTION 4: SDG CONNECT / PROJECT BUILDER
+// 05 — CAMPAIGN BUILDER
 // =========================================================
 
-const problems = ["Cybersecurity awareness", "Digital literacy", "Online privacy", "Youth opportunities", "Education", "Community safety"];
-const contributions = ["Technology", "Research", "Communication", "Design", "Leadership", "Education"];
-const partners = ["School", "Youth organization", "NGO", "University", "Local community", "Technology company"];
+const campAudiences = ["Students", "Parents & families", "Teachers & educators", "General public"];
+const campTopics = ["Phishing", "Password security", "Social media privacy", "Public Wi-Fi safety", "AI scams & deepfakes", "Cyberbullying"];
+const campFormats = ["Workshop", "Poster campaign", "Social media series", "Peer-to-peer training session"];
+const campGoals = ["25 participants", "50 participants", "100 participants", "A full class or school year group"];
 
-let selectedProblem = null;
-let selectedContribution = null;
-let selectedPartner = null;
+const campDeliverables = {
+  "Workshop": "a slide presentation, a live scam-spotting activity, and a printed takeaway checklist",
+  "Poster campaign": "a set of 3–5 posters placed in high-traffic areas, plus a QR code linking to more resources",
+  "Social media series": "a short series of posts or videos, one per key idea, scheduled over two weeks",
+  "Peer-to-peer training session": "a trained group of peer leaders, a simple facilitation guide, and a short feedback survey"
+};
 
-function renderChips(containerId, items, onSelect) {
+let campSel = { audience: null, topic: null, format: null, goal: null };
+
+renderChipGroup('campAudienceChips', campAudiences, 'audienceIdx');
+renderChipGroup('campTopicChips', campTopics, 'topicIdx');
+renderChipGroup('campFormatChips', campFormats, 'formatIdx');
+renderChipGroup('campGoalChips', campGoals, 'goalIdx');
+
+// map custom keys back onto campSel (renderChipGroup writes to sdgSel by default via closure key,
+// so we re-bind these specific groups with their own selection object)
+function bindCampChips(containerId, items, key) {
   const container = document.getElementById(containerId);
-  items.forEach(item => {
+  container.innerHTML = '';
+  items.forEach((item, i) => {
     const chip = document.createElement('button');
     chip.className = 'chip';
     chip.textContent = item;
     chip.addEventListener('click', () => {
       container.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
       chip.classList.add('selected');
-      onSelect(item);
+      campSel[key] = i;
+      checkCampComplete();
     });
     container.appendChild(chip);
   });
 }
+bindCampChips('campAudienceChips', campAudiences, 'audience');
+bindCampChips('campTopicChips', campTopics, 'topic');
+bindCampChips('campFormatChips', campFormats, 'format');
+bindCampChips('campGoalChips', campGoals, 'goal');
 
-const generateBtn = document.getElementById('generateProject');
-
-function checkBuilderComplete() {
-  generateBtn.disabled = !(selectedProblem && selectedContribution && selectedPartner);
+const campGenerateBtn = document.getElementById('campGenerate');
+function checkCampComplete() {
+  campGenerateBtn.disabled = !(campSel.audience !== null && campSel.topic !== null && campSel.format !== null && campSel.goal !== null);
 }
 
-renderChips('problemChips', problems, (val) => { selectedProblem = val; checkBuilderComplete(); });
-renderChips('contributionChips', contributions, (val) => { selectedContribution = val; checkBuilderComplete(); });
-renderChips('partnerChips', partners, (val) => { selectedPartner = val; checkBuilderComplete(); });
+campGenerateBtn.addEventListener('click', () => {
+  const audience = campAudiences[campSel.audience];
+  const topic = campTopics[campSel.topic];
+  const format = campFormats[campSel.format];
+  const goal = campGoals[campSel.goal];
 
-const solutionTemplates = {
-  "Cybersecurity awareness": "a series of workshops and interactive resources that teach practical digital safety habits",
-  "Digital literacy": "a peer-led program that builds core digital skills through hands-on sessions",
-  "Online privacy": "a campaign and toolkit that helps people understand and control their digital footprint",
-  "Youth opportunities": "a mentorship and resource-sharing initiative connecting young people to opportunities",
-  "Education": "a set of accessible learning resources built around a real community need",
-  "Community safety": "a community-driven awareness initiative focused on practical, everyday safety"
-};
+  document.getElementById('campName').textContent = `${topic} Awareness Campaign for ${audience}`;
+  document.getElementById('campAudienceText').textContent = `Designed for ${audience.toLowerCase()}, tailored to their everyday digital habits and risks.`;
+  document.getElementById('campTopicText').textContent = `Centered on ${topic.toLowerCase()}, addressing one of the most common real-world digital risks.`;
+  document.getElementById('campFormatText').textContent = `Delivered as a ${format.toLowerCase()}, chosen to fit the audience and available resources.`;
+  document.getElementById('campGoalText').textContent = `Aiming to reach ${goal.toLowerCase()}.`;
+  document.getElementById('campDeliverablesText').textContent = `Suggested deliverables: ${campDeliverables[format]}.`;
 
-document.getElementById('generateProject').addEventListener('click', () => {
-  const projectName = `${selectedProblem} × ${selectedPartner} Initiative`;
-
-  document.getElementById('projectName').textContent = projectName;
-  document.getElementById('projectProblem').textContent =
-    `Many young people and communities face challenges related to ${selectedProblem.toLowerCase()}, often without accessible resources to address them.`;
-  document.getElementById('projectSolution').textContent =
-    `Develop ${solutionTemplates[selectedProblem]}, led by youth and shaped by real community input.`;
-  document.getElementById('projectContribution').textContent =
-    `Bringing ${selectedContribution.toLowerCase()} skills to design, build, and drive the initiative forward.`;
-  document.getElementById('projectPartner').textContent =
-    `Partnering with a ${selectedPartner.toLowerCase()} to provide reach, resources, and credibility.`;
-  document.getElementById('projectSDG').textContent =
-    `This project reflects SDG 17 by combining youth-led action with an established partner, showing how collaboration across sectors turns awareness into real impact.`;
-
-  document.getElementById('projectOutput').hidden = false;
+  document.getElementById('campOutput').hidden = false;
 });
