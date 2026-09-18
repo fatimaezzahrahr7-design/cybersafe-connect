@@ -2,20 +2,52 @@
 // CYBERSAFE CONNECT — MAIN SCRIPT
 // =========================================================
 
+// ---------- DARK / LIGHT MODE TOGGLE ----------
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+
+function applyTheme(isLight) {
+  document.body.classList.toggle('light-mode', isLight);
+  themeIcon.textContent = isLight ? '🌙' : '☀️';
+  localStorage.setItem('csc-theme', isLight ? 'light' : 'dark');
+}
+
+const savedTheme = localStorage.getItem('csc-theme');
+applyTheme(savedTheme === 'light');
+
+themeToggle.addEventListener('click', () => {
+  applyTheme(!document.body.classList.contains('light-mode'));
+});
+
 // ---------- MOBILE NAV TOGGLE ----------
 const navToggle = document.getElementById('navToggle');
 const navLinks = document.getElementById('navLinks');
 
 navToggle.addEventListener('click', () => {
-  navLinks.classList.toggle('open');
+  const isOpen = navLinks.classList.toggle('open');
+  navToggle.setAttribute('aria-expanded', isOpen);
 });
 
-// Close mobile nav when a link is clicked
 navLinks.querySelectorAll('a').forEach(link => {
   link.addEventListener('click', () => {
     navLinks.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', 'false');
   });
 });
+
+// ---------- SCROLL REVEAL ANIMATIONS ----------
+const revealElements = document.querySelectorAll('.reveal');
+
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+revealElements.forEach(el => revealObserver.observe(el));
 
 // =========================================================
 // SECTION 1: DIGITAL SAFETY CHECK (QUIZ)
@@ -157,7 +189,6 @@ function showResults() {
 
   document.getElementById('resultsLevel').textContent = level;
 
-  // Category breakdown
   const breakdownEl = document.getElementById('resultsBreakdown');
   breakdownEl.innerHTML = '';
   quizQuestions.forEach((q, i) => {
@@ -173,7 +204,6 @@ function showResults() {
     breakdownEl.appendChild(row);
   });
 
-  // Recommendations based on weak areas (score of 1)
   const recommendationsMap = {
     "Passwords": "Use a unique password for each account — a password manager makes this easy.",
     "Two-Factor Authentication": "Turn on 2FA for your email, banking, and social accounts — it blocks most account takeovers.",
@@ -240,6 +270,21 @@ const scamMessages = [
     text: "Hey, it's your cousin, I lost my phone and I'm messaging from a friend's number. I need you to send money urgently through this app, I'll explain later, please hurry!",
     isSuspicious: true,
     explanation: "Impersonation of a relative, urgency, an unfamiliar contact method, and a request for money are strong scam indicators. Always verify through a known, separate channel first."
+  },
+  {
+    text: "Your package could not be delivered due to an incomplete address. Please confirm your details and pay a small redelivery fee of $1.99 within 12 hours to avoid return to sender.",
+    isSuspicious: true,
+    explanation: "Small 'confirmation fees' are a common trick to harvest card details — legitimate carriers don't charge redelivery fees this way over text or email links."
+  },
+  {
+    text: "Hi, this is the library — just a reminder that 'Introduction to Statistics' is due back on Friday. You can renew it online through your account if you need more time.",
+    isSuspicious: false,
+    explanation: "A specific, low-stakes reminder with no request for personal information, payment, or urgent action — consistent with a routine institutional notice."
+  },
+  {
+    text: "We noticed a new sign-in to your account from a device we don't recognize. If this was you, no action is needed. If not, you can review your account activity by logging in directly at the official site.",
+    isSuspicious: false,
+    explanation: "No urgent threat, no embedded link demanding immediate action, and it directs you to log in directly rather than clicking through — the safer pattern real security alerts use."
   }
 ];
 
@@ -270,7 +315,7 @@ scamActionButtons.forEach(btn => {
     if (scamAnswered) return;
     scamAnswered = true;
 
-    const choice = btn.getAttribute('data-choice'); // "safe" or "suspicious"
+    const choice = btn.getAttribute('data-choice');
     const msg = scamMessages[scamIndex];
     const userSaidSuspicious = choice === 'suspicious';
     const correct = userSaidSuspicious === msg.isSuspicious;
@@ -346,6 +391,21 @@ const learningCards = [
     title: "AI-Generated Scams & Deepfakes",
     text: "AI tools now make fake voices, videos, and messages easier to create convincingly.",
     takeaway: "If an urgent request from someone you know feels off, verify through a separate, known channel."
+  },
+  {
+    title: "Software Updates",
+    text: "Updates often patch security holes attackers actively exploit.",
+    takeaway: "Turn on automatic updates for your phone, browser, and apps whenever possible."
+  },
+  {
+    title: "Social Engineering",
+    text: "Many attacks target trust and urgency, not just technical weaknesses.",
+    takeaway: "Slow down when a message pressures you to act fast — that pressure is often the scam itself."
+  },
+  {
+    title: "Backing Up Your Data",
+    text: "A backup protects you if a device is lost, stolen, or compromised.",
+    takeaway: "Keep an up-to-date backup of important files in at least one place outside your main device."
   }
 ];
 
@@ -354,6 +414,9 @@ const learningCardsGrid = document.getElementById('learningCardsGrid');
 learningCards.forEach(card => {
   const cardEl = document.createElement('div');
   cardEl.className = 'learning-card';
+  cardEl.setAttribute('tabindex', '0');
+  cardEl.setAttribute('role', 'button');
+  cardEl.setAttribute('aria-label', `${card.title}. Press to reveal the takeaway.`);
   cardEl.innerHTML = `
     <div>
       <p class="learning-card-title">${card.title}</p>
@@ -363,6 +426,12 @@ learningCards.forEach(card => {
   `;
   cardEl.addEventListener('click', () => {
     cardEl.classList.toggle('flipped');
+  });
+  cardEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      cardEl.classList.toggle('flipped');
+    }
   });
   learningCardsGrid.appendChild(cardEl);
 });
