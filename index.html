@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CyberSafe Connect — Digital Safety & Youth Collaboration</title>
-  <meta name="description" content="A youth cybersecurity program: assess your digital safety, practice real scenarios, learn core topics, and build SDG 17 projects and campaigns." />
+  <title>CyberSafe Connect — Youth Digital Safety Initiative</title>
+  <meta name="description" content="CyberSafe Connect is a youth-led digital safety initiative: assess your habits, practice real scenarios, learn the essentials, and turn what you know into a real project." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,500&family=EB+Garamond:ital@1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -22,11 +22,11 @@
         <span></span><span></span><span></span>
       </button>
       <ul class="nav-links" id="navLinks">
-        <li><a href="#safety-score">Safety Score</a></li>
-        <li><a href="#wwyd">What Would You Do?</a></li>
-        <li><a href="#learning-hub">Learning Hub</a></li>
-        <li><a href="#sdg-builder">SDG Builder</a></li>
-        <li><a href="#campaign-builder">Campaign Builder</a></li>
+        <li><a href="#safety-score">Assessment</a></li>
+        <li><a href="#wwyd">Scenarios</a></li>
+        <li><a href="#learning-hub">Learn</a></li>
+        <li><a href="#sdg-builder">Build</a></li>
+        <li><a href="#for-schools">For Schools</a></li>
         <li><a href="#about">About</a></li>
       </ul>
     </div>
@@ -36,27 +36,34 @@
 
     <!-- ===== HERO ===== -->
     <header class="hero">
+      <div class="hero-glow glow-1" aria-hidden="true"></div>
+      <div class="hero-glow glow-2" aria-hidden="true"></div>
       <div class="hero-inner reveal">
-        <span class="badge badge-rotate">Youth &middot; Cybersecurity &middot; SDG 17</span>
-        <h1>CyberSafe<br>Connect</h1>
-        <p class="hero-tagline">Safer digital communities through youth collaboration.</p>
+        <span class="eyebrow">A youth digital safety initiative</span>
+        <h1>See how safe<br>you really are online.</h1>
         <p class="hero-description">
-          Assess your digital safety, practice real scenarios, learn the essentials,
-          then turn what you know into an actual community project or campaign.
+          CyberSafe Connect helps young people build real digital safety habits
+          through honest self-assessment, realistic scenarios, and practical
+          learning — then turn what they learn into an actual project.
         </p>
         <div class="hero-actions">
-          <a href="#safety-score" class="btn btn-block-coral">Check My Digital Safety</a>
-          <a href="#sdg-builder" class="btn btn-block-ink">Build a Project</a>
+          <a href="#safety-score" class="btn btn-primary">Take the Assessment</a>
+          <a href="#wwyd" class="btn btn-secondary">Try a Scenario</a>
         </div>
       </div>
     </header>
 
-    <!-- ===== DIGITAL SAFETY SCORE ===== -->
+    <!-- ===== BADGES / PROGRESS ===== -->
+    <section class="badges-strip reveal" aria-label="Your progress badges">
+      <div class="badges-inner" id="badgesInner"></div>
+    </section>
+
+    <!-- ===== SAFETY SCORE ===== -->
     <section id="safety-score" class="section" aria-labelledby="safety-score-heading">
       <div class="section-header reveal">
-        <span class="tag">01 &middot; Assess</span>
-        <h2 id="safety-score-heading">Your Digital Safety Score</h2>
-        <p class="section-subtitle">7 questions across 7 categories. Real advice for every category — not just a percentage.</p>
+        <span class="eyebrow">Assessment</span>
+        <h2 id="safety-score-heading">Your Digital Safety Profile</h2>
+        <p class="section-subtitle">7 real situations across 7 categories — with practical next steps, not just a score.</p>
       </div>
 
       <div class="quiz-card reveal" id="quizCard">
@@ -74,46 +81,44 @@
           <div class="score-circle" id="scoreCircle"><span id="scoreNumber">0</span><small>%</small></div>
           <div>
             <p class="results-level" id="resultsLevel">Safety Level</p>
-            <p class="results-caption">Category breakdown below</p>
+            <p class="results-compare" id="resultsCompare" hidden></p>
           </div>
         </div>
         <div class="category-grid" id="categoryGrid"></div>
-        <button id="retakeQuiz" class="btn btn-block-ink">Retake the check</button>
+        <button id="retakeQuiz" class="btn btn-secondary">Retake the assessment</button>
       </div>
     </section>
 
     <!-- ===== WHAT WOULD YOU DO ===== -->
-    <section id="wwyd" class="section section-flip" aria-labelledby="wwyd-heading">
+    <section id="wwyd" class="section section-alt" aria-labelledby="wwyd-heading">
       <div class="section-header reveal">
-        <span class="tag tag-light">02 &middot; Decide</span>
+        <span class="eyebrow eyebrow-light">Real Scenarios</span>
         <h2 id="wwyd-heading">What Would You Do?</h2>
-        <p class="section-subtitle">Real situations young people run into. Pick a response, then see why it matters.</p>
+        <p class="section-subtitle">Situations young people actually run into. Pick a response, then see why it matters.</p>
       </div>
 
       <div class="scenario-card reveal" id="scenarioCard">
-        <p class="scenario-counter" id="scenarioCounter">Scenario 1 of 7</p>
+        <p class="scenario-counter" id="scenarioCounter">Scenario 1 of 8</p>
         <div class="scenario-situation" id="scenarioSituation" aria-live="polite"></div>
         <div class="scenario-options" id="scenarioOptions" role="group"></div>
         <div class="scenario-feedback" id="scenarioFeedback" hidden aria-live="polite"></div>
-        <button class="btn btn-block-ink" id="scenarioNext" hidden>Next Scenario</button>
+        <button class="btn btn-primary" id="scenarioNext" hidden>Next Scenario</button>
       </div>
 
       <div class="scenario-summary" id="scenarioSummary" hidden>
-        <h3 id="scenarioSummaryText">You chose the safest response 0 out of 7 times</h3>
-        <button class="btn btn-block-coral" id="scenarioRestart">Try Again</button>
+        <h3 id="scenarioSummaryText">You chose the safest response 0 out of 8 times</h3>
+        <button class="btn btn-secondary" id="scenarioRestart">Try Again</button>
       </div>
     </section>
 
     <!-- ===== LEARNING HUB ===== -->
     <section id="learning-hub" class="section" aria-labelledby="learning-hub-heading">
       <div class="section-header reveal">
-        <span class="tag">03 &middot; Learn</span>
+        <span class="eyebrow">Learn</span>
         <h2 id="learning-hub-heading">Cybersecurity Learning Hub</h2>
         <p class="section-subtitle">Pick a topic. Learn it, try a quick check, then take on a challenge.</p>
       </div>
-
       <div class="hub-grid reveal" id="hubGrid"></div>
-
       <div class="hub-detail" id="hubDetail" hidden>
         <div class="hub-detail-header">
           <h3 id="hubDetailTitle"></h3>
@@ -129,32 +134,18 @@
     </section>
 
     <!-- ===== SDG BUILDER ===== -->
-    <section id="sdg-builder" class="section section-flip" aria-labelledby="sdg-builder-heading">
+    <section id="sdg-builder" class="section section-alt" aria-labelledby="sdg-builder-heading">
       <div class="section-header reveal">
-        <span class="tag tag-light">04 &middot; Build a Project</span>
+        <span class="eyebrow eyebrow-light">Build Something Real</span>
         <h2 id="sdg-builder-heading">SDG Connect Project Builder</h2>
-        <p class="section-subtitle">Problem &rarr; Contribution &rarr; Partner &rarr; Reach &rarr; a real project concept, mapped to its SDGs.</p>
+        <p class="section-subtitle">Problem &rarr; Contribution &rarr; Partner &rarr; Reach &rarr; a real project concept.</p>
       </div>
-
       <div class="builder-card reveal">
-        <div class="builder-step">
-          <p class="builder-label">1. Problem</p>
-          <div class="chip-group" id="sdgProblemChips"></div>
-        </div>
-        <div class="builder-step">
-          <p class="builder-label">2. Your contribution</p>
-          <div class="chip-group" id="sdgContributionChips"></div>
-        </div>
-        <div class="builder-step">
-          <p class="builder-label">3. Potential partner</p>
-          <div class="chip-group" id="sdgPartnerChips"></div>
-        </div>
-        <div class="builder-step">
-          <p class="builder-label">4. Target reach</p>
-          <div class="chip-group" id="sdgReachChips"></div>
-        </div>
-        <button class="btn btn-block-coral" id="sdgGenerate" disabled>Generate Project Concept</button>
-
+        <div class="builder-step"><p class="builder-label">1. Problem</p><div class="chip-group" id="sdgProblemChips"></div></div>
+        <div class="builder-step"><p class="builder-label">2. Your contribution</p><div class="chip-group" id="sdgContributionChips"></div></div>
+        <div class="builder-step"><p class="builder-label">3. Potential partner</p><div class="chip-group" id="sdgPartnerChips"></div></div>
+        <div class="builder-step"><p class="builder-label">4. Target reach</p><div class="chip-group" id="sdgReachChips"></div></div>
+        <button class="btn btn-primary" id="sdgGenerate" disabled>Generate Project Concept</button>
         <div class="project-output" id="sdgOutput" hidden>
           <h3 id="sdgName"></h3>
           <div class="sdg-tags" id="sdgTags"></div>
@@ -171,30 +162,16 @@
     <!-- ===== CAMPAIGN BUILDER ===== -->
     <section id="campaign-builder" class="section" aria-labelledby="campaign-builder-heading">
       <div class="section-header reveal">
-        <span class="tag">05 &middot; Build a Campaign</span>
+        <span class="eyebrow">Take It Further</span>
         <h2 id="campaign-builder-heading">Youth Cyber Awareness Campaign Builder</h2>
         <p class="section-subtitle">Turn a topic into an actual campaign plan you could run.</p>
       </div>
-
       <div class="builder-card reveal">
-        <div class="builder-step">
-          <p class="builder-label">1. Target audience</p>
-          <div class="chip-group" id="campAudienceChips"></div>
-        </div>
-        <div class="builder-step">
-          <p class="builder-label">2. Topic</p>
-          <div class="chip-group" id="campTopicChips"></div>
-        </div>
-        <div class="builder-step">
-          <p class="builder-label">3. Format</p>
-          <div class="chip-group" id="campFormatChips"></div>
-        </div>
-        <div class="builder-step">
-          <p class="builder-label">4. Goal</p>
-          <div class="chip-group" id="campGoalChips"></div>
-        </div>
-        <button class="btn btn-block-ink" id="campGenerate" disabled>Generate Campaign Plan</button>
-
+        <div class="builder-step"><p class="builder-label">1. Target audience</p><div class="chip-group" id="campAudienceChips"></div></div>
+        <div class="builder-step"><p class="builder-label">2. Topic</p><div class="chip-group" id="campTopicChips"></div></div>
+        <div class="builder-step"><p class="builder-label">3. Format</p><div class="chip-group" id="campFormatChips"></div></div>
+        <div class="builder-step"><p class="builder-label">4. Goal</p><div class="chip-group" id="campGoalChips"></div></div>
+        <button class="btn btn-primary" id="campGenerate" disabled>Generate Campaign Plan</button>
         <div class="project-output" id="campOutput" hidden>
           <h3 id="campName"></h3>
           <div class="project-field"><span class="project-field-label">Audience</span><p id="campAudienceText"></p></div>
@@ -206,37 +183,74 @@
       </div>
     </section>
 
-    <section class="section why-sdg" aria-labelledby="why-sdg-heading">
-      <div class="section-header reveal">
-        <span class="tag tag-light">Why It Matters</span>
-        <h2 id="why-sdg-heading">Why SDG 17?</h2>
+    <!-- ===== FOR SCHOOLS ===== -->
+    <section id="for-schools" class="section section-alt" aria-labelledby="schools-heading">
+      <div class="schools-inner reveal">
+        <span class="eyebrow eyebrow-light">For Schools</span>
+        <h2 id="schools-heading">Bring practical digital-safety learning into your classroom.</h2>
+        <p class="schools-text">
+          CyberSafe Connect can support interactive workshops built around this
+          platform — students complete the assessment, work through real
+          scenarios together, discuss what they'd do, and can retake the
+          assessment afterward to see how their thinking changed.
+        </p>
+        <a href="mailto:fatimaezzahrahr7@gmail.com?subject=CyberSafe%20Connect%20Workshop%20Interest" class="btn btn-primary">Interested in a workshop? Get in touch</a>
       </div>
-      <p class="why-sdg-text reveal">
-        Meaningful social impact rarely happens in isolation. It takes partnerships —
-        between young people, schools, NGOs, universities, governments, businesses, and
-        communities — to turn an idea into something that actually changes how people
-        live and stay safe online. CyberSafe Connect is built on that principle.
+    </section>
+
+    <!-- ===== COMMUNITY ===== -->
+    <section id="community" class="section" aria-labelledby="community-heading">
+      <div class="section-header reveal">
+        <span class="eyebrow">Community</span>
+        <h2 id="community-heading">Growing, one partnership at a time</h2>
+      </div>
+      <p class="community-text reveal">
+        CyberSafe Connect is being built as more than a website — the goal is a
+        youth community around digital safety, where students, educators,
+        schools, youth organizations, and technology communities work together
+        to build safer digital environments. That community doesn't exist yet
+        at scale — it's being built one conversation, one workshop, and one
+        partnership at a time.
       </p>
     </section>
 
+    <!-- ===== IMPACT (honest placeholder) ===== -->
+    <section id="impact" class="section section-alt" aria-labelledby="impact-heading">
+      <div class="section-header reveal">
+        <span class="eyebrow eyebrow-light">Impact</span>
+        <h2 id="impact-heading">Real Numbers, When There Are Real Numbers</h2>
+        <p class="section-subtitle">CyberSafe Connect doesn't publish invented statistics. This is what will appear here once the platform is actually used at scale.</p>
+      </div>
+      <div class="impact-grid reveal">
+        <div class="impact-card"><span class="impact-value">—</span><span class="impact-label">Assessments completed</span></div>
+        <div class="impact-card"><span class="impact-value">—</span><span class="impact-label">Average score improvement</span></div>
+        <div class="impact-card"><span class="impact-value">—</span><span class="impact-label">Workshops delivered</span></div>
+        <div class="impact-card"><span class="impact-value">—</span><span class="impact-label">Youth projects built</span></div>
+      </div>
+      <p class="impact-note reveal">Data will appear here as assessments are completed in real workshops and school settings.</p>
+    </section>
+
+    <!-- ===== ABOUT ===== -->
     <section id="about" class="section" aria-labelledby="about-heading">
       <div class="section-header reveal">
-        <span class="tag">About</span>
+        <span class="eyebrow">About</span>
         <h2 id="about-heading">About CyberSafe Connect</h2>
       </div>
       <p class="about-text reveal">
-        CyberSafe Connect is a youth-focused program that brings together digital
-        safety, technology, collaboration, and social impact. It's designed as a full
-        arc: learn cybersecurity, test your judgment against real scenarios, apply what
-        you know, then build an actual community project or campaign — the thinking at
-        the heart of the United Nations' Sustainable Development Goal 17.
+        CyberSafe Connect began as an independent youth project exploring how
+        digital-safety education can become more practical, accessible, and
+        engaging for young people. It was independently founded and developed
+        by <strong>Fatimaezzahra Hrimech</strong>, and is being built as a real,
+        usable initiative — one that can grow through workshops, schools, and
+        partnerships rather than staying a static website.
       </p>
     </section>
 
   </main>
 
   <footer class="footer">
-    <p>CyberSafe Connect &middot; A youth cybersecurity &amp; collaboration concept</p>
+    <p>CyberSafe Connect — a youth cybersecurity and collaboration concept.</p>
+    <p class="footer-founder">Founded by Fatimaezzahra Hrimech</p>
   </footer>
 
   <script src="script.js"></script>
