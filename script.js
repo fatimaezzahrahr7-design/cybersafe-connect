@@ -5,13 +5,16 @@
 // ---------- MOBILE NAV ----------
 const navToggle = document.getElementById('navToggle');
 const navLinks = document.getElementById('navLinks');
-navToggle.addEventListener('click', () => {
-  const open = navLinks.classList.toggle('open');
-  navToggle.setAttribute('aria-expanded', open);
-});
-navLinks.querySelectorAll('a').forEach(link => {
-  link.addEventListener('click', () => navLinks.classList.remove('open'));
-});
+
+if (navToggle && navLinks) {
+  navToggle.addEventListener('click', () => {
+    const open = navLinks.classList.toggle('open');
+    navToggle.setAttribute('aria-expanded', open);
+  });
+  navLinks.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => navLinks.classList.remove('open'));
+  });
+}
 
 // ---------- SCROLL REVEAL ----------
 const revealObserver = new IntersectionObserver((entries) => {
@@ -22,23 +25,69 @@ const revealObserver = new IntersectionObserver((entries) => {
     }
   });
 }, { threshold: 0.12 });
+
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// =========================================================
+// STORAGE HELPERS + IMPACT RENDER (REAL, PER-BROWSER)
+// =========================================================
+function getOpenedTopics() {
+  try { return JSON.parse(localStorage.getItem('csc-hub-opened') || '[]'); }
+  catch { return []; }
+}
+
+function getEarnedBadges() {
+  try { return JSON.parse(localStorage.getItem('csc-badges') || '[]'); }
+  catch { return []; }
+}
+
+function renderImpact() {
+  const grid = document.getElementById('impactGrid');
+  const note = document.getElementById('impactNote');
+  if (!grid || !note) return;
+
+  const badges = getEarnedBadges();
+
+  const scenariosDone = localStorage.getItem('csc-scenarios-done') === 'true';
+  const hubOpened = getOpenedTopics().length;
+  const hasScore = localStorage.getItem('csc-previous-score') !== null;
+
+  const projectsBuilt =
+    (localStorage.getItem('csc-sdg-built') === 'true' ? 1 : 0) +
+    (localStorage.getItem('csc-camp-built') === 'true' ? 1 : 0);
+
+  const items = [
+    { value: hasScore ? '1' : '0', label: 'Assessments completed' },
+    { value: scenariosDone ? '8 / 8' : '0 / 8', label: 'Scenarios worked through' },
+    { value: `${hubOpened} / 10`, label: 'Learning Hub topics explored' },
+    { value: String(projectsBuilt), label: 'Projects or campaigns built' }
+  ];
+
+  grid.innerHTML = items.map(i => `
+    <div class="impact-card">
+      <span class="impact-value">${i.value}</span>
+      <span class="impact-label">${i.label}</span>
+    </div>
+  `).join('');
+
+  const totalActivity = badges.length;
+  note.textContent = totalActivity === 0
+    ? 'Complete an assessment, a scenario, or build a project to see your activity here.'
+    : 'This reflects your own activity on this device. Platform-wide numbers will appear here once CyberSafe Connect is used in real workshops and schools.';
+}
+
+// render immediately (so it never looks empty after refresh)
+document.addEventListener('DOMContentLoaded', () => renderImpact());
 
 // =========================================================
 // BADGES
 // =========================================================
-
 const badgeDefs = [
   { id: 'explorer', icon: '🛡️', label: 'Digital Safety Explorer' },
   { id: 'strategist', icon: '🧭', label: 'Scenario Strategist' },
   { id: 'learner', icon: '📚', label: 'Learning Hub Explorer' },
   { id: 'builder', icon: '🌍', label: 'Project Builder' }
 ];
-
-function getEarnedBadges() {
-  try { return JSON.parse(localStorage.getItem('csc-badges') || '[]'); }
-  catch { return []; }
-}
 
 function earnBadge(id) {
   const earned = getEarnedBadges();
@@ -60,12 +109,12 @@ function renderBadges() {
     container.appendChild(chip);
   });
 }
+
 renderBadges();
 
 // =========================================================
 // 01 — DIGITAL SAFETY ASSESSMENT
 // =========================================================
-
 const categories = [
   {
     key: "Passwords",
@@ -240,7 +289,11 @@ function showResults() {
   } else {
     compareEl.hidden = true;
   }
+
   localStorage.setItem('csc-previous-score', percentage);
+
+  // ✅ impact update
+  renderImpact();
 
   const grid = document.getElementById('categoryGrid');
   grid.innerHTML = '';
@@ -269,7 +322,6 @@ renderQuestion();
 // =========================================================
 // 02 — WHAT WOULD YOU DO?
 // =========================================================
-
 const scenarios = [
   {
     situation: "Someone calls claiming to be from your bank's security team. They say there's suspicious activity and ask you to read them the verification code just texted to your phone.",
@@ -388,7 +440,12 @@ scenarioNextBtn.addEventListener('click', () => {
     scenarioSummary.hidden = false;
     document.getElementById('scenarioSummaryText').textContent =
       `You chose the safest response ${scenarioBestCount} out of ${scenarios.length} times`;
+
     earnBadge('strategist');
+
+    // ✅ mark scenarios completed + re-render impact
+    localStorage.setItem('csc-scenarios-done', 'true');
+    renderImpact();
   }
 });
 
@@ -403,7 +460,6 @@ renderScenario();
 // =========================================================
 // 03 — LEARNING HUB
 // =========================================================
-
 const hubTopics = [
   { icon: "🔐", title: "Passwords & MFA",
     learn: "A strong password is long, unique, and different for every account. Multi-factor authentication (MFA) adds a second proof of identity so a stolen password alone isn't enough to get in.",
@@ -541,12 +597,8 @@ const hubGrid = document.getElementById('hubGrid');
 const hubDetail = document.getElementById('hubDetail');
 const hubDetailTitle = document.getElementById('hubDetailTitle');
 const hubTabContent = document.getElementById('hubTabContent');
-let activeHubTopic = null;
 
-function getOpenedTopics() {
-  try { return JSON.parse(localStorage.getItem('csc-hub-opened') || '[]'); }
-  catch { return []; }
-}
+let activeHubTopic = null;
 
 hubTopics.forEach((topic, i) => {
   const tile = document.createElement('div');
@@ -555,7 +607,9 @@ hubTopics.forEach((topic, i) => {
   tile.setAttribute('role', 'button');
   tile.innerHTML = `<div class="hub-tile-icon">${topic.icon}</div><p class="hub-tile-title">${topic.title}</p>`;
   tile.addEventListener('click', () => openHubTopic(i));
-  tile.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openHubTopic(i); } });
+  tile.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openHubTopic(i); }
+  });
   hubGrid.appendChild(tile);
 });
 
@@ -563,6 +617,7 @@ function openHubTopic(i) {
   activeHubTopic = i;
   hubDetail.hidden = false;
   hubDetailTitle.textContent = hubTopics[i].icon + ' ' + hubTopics[i].title;
+
   setHubTab('learn');
   hubDetail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
@@ -571,6 +626,9 @@ function openHubTopic(i) {
     opened.push(i);
     localStorage.setItem('csc-hub-opened', JSON.stringify(opened));
     if (opened.length >= 3) earnBadge('learner');
+
+    // ✅ keep impact live as user explores hub
+    renderImpact();
   }
 }
 
@@ -593,19 +651,23 @@ function setHubTab(tab) {
 
   const data = tab === 'try' ? topic.try : topic.challenge;
   hubTabContent.innerHTML = `<p><strong>${data.question}</strong></p><div class="hub-options"></div>`;
+
   const container = hubTabContent.querySelector('.hub-options');
   data.options.forEach(opt => {
     const btn = document.createElement('button');
     btn.className = tab === 'try' ? 'hub-try-option' : 'hub-challenge-option';
     btn.textContent = opt.text;
+
     btn.addEventListener('click', () => {
       container.querySelectorAll('button').forEach(b => b.disabled = true);
       btn.classList.add(opt.correct ? 'correct-pick' : 'wrong-pick');
+
       const fb = document.createElement('div');
       fb.className = 'hub-feedback';
       fb.textContent = opt.feedback;
       hubTabContent.appendChild(fb);
     });
+
     container.appendChild(btn);
   });
 }
@@ -613,7 +675,6 @@ function setHubTab(tab) {
 // =========================================================
 // 04 — SDG CONNECT PROJECT BUILDER
 // =========================================================
-
 const sdgProblems = [
   { text: "Cybersecurity awareness", tags: ["SDG 4", "SDG 16", "SDG 17"], solution: "a series of workshops and interactive resources that teach practical digital safety habits" },
   { text: "Digital literacy", tags: ["SDG 4", "SDG 9", "SDG 17"], solution: "a peer-led program that builds core digital skills through hands-on sessions" },
@@ -635,24 +696,26 @@ function bindChips(containerId, items, selObj, key, labelFn) {
     const chip = document.createElement('button');
     chip.className = 'chip';
     chip.textContent = labelFn ? labelFn(item) : item;
+
     chip.addEventListener('click', () => {
       container.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
       chip.classList.add('selected');
       selObj[key] = i;
       checkComplete();
     });
+
     container.appendChild(chip);
   });
 }
 
 let checkComplete = () => {};
-
 bindChips('sdgProblemChips', sdgProblems, sdgSel, 'problem', p => p.text);
 bindChips('sdgContributionChips', sdgContributions, sdgSel, 'contribution');
 bindChips('sdgPartnerChips', sdgPartners, sdgSel, 'partner');
 bindChips('sdgReachChips', sdgReaches, sdgSel, 'reach');
 
 const sdgGenerateBtn = document.getElementById('sdgGenerate');
+
 checkComplete = function checkSdgComplete() {
   sdgGenerateBtn.disabled = !(sdgSel.problem !== null && sdgSel.contribution !== null && sdgSel.partner !== null && sdgSel.reach !== null);
 };
@@ -674,12 +737,15 @@ sdgGenerateBtn.addEventListener('click', () => {
 
   document.getElementById('sdgOutput').hidden = false;
   earnBadge('builder');
+
+  // ✅ impact update
+  localStorage.setItem('csc-sdg-built', 'true');
+  renderImpact();
 });
 
 // =========================================================
 // 05 — CAMPAIGN BUILDER
 // =========================================================
-
 const campAudiences = ["Students", "Parents & families", "Teachers & educators", "General public"];
 const campTopics = ["Phishing", "Password security", "Social media privacy", "Public Wi-Fi safety", "AI scams & deepfakes", "Cyberbullying"];
 const campFormats = ["Workshop", "Poster campaign", "Social media series", "Peer-to-peer training session"];
@@ -701,13 +767,19 @@ bindChips('campFormatChips', campFormats, campSel, 'format');
 bindChips('campGoalChips', campGoals, campSel, 'goal');
 
 const campGenerateBtn = document.getElementById('campGenerate');
+
 checkCampComplete = function () {
   campGenerateBtn.disabled = !(campSel.audience !== null && campSel.topic !== null && campSel.format !== null && campSel.goal !== null);
 };
-checkComplete = function () { checkSdgCompleteWrapper(); checkCampComplete(); };
+
 function checkSdgCompleteWrapper() {
   sdgGenerateBtn.disabled = !(sdgSel.problem !== null && sdgSel.contribution !== null && sdgSel.partner !== null && sdgSel.reach !== null);
 }
+
+checkComplete = function () {
+  checkSdgCompleteWrapper();
+  checkCampComplete();
+};
 
 campGenerateBtn.addEventListener('click', () => {
   const audience = campAudiences[campSel.audience];
@@ -723,4 +795,9 @@ campGenerateBtn.addEventListener('click', () => {
   document.getElementById('campDeliverablesText').textContent = `Suggested deliverables: ${campDeliverables[format]}.`;
 
   document.getElementById('campOutput').hidden = false;
+
+  // ✅ impact update
+  localStorage.setItem('csc-camp-built', 'true');
+  earnBadge('builder');
+  renderImpact();
 });
